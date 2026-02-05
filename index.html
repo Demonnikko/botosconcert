@@ -69,6 +69,35 @@
             gap: 24px;
         }
 
+        /* Admin Panel Styles */
+        #admin-panel {
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: var(--card-radius);
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
         .card {
             background: var(--card-bg);
             backdrop-filter: blur(10px);
@@ -81,6 +110,10 @@
             opacity: 0;
             transform: translateY(20px);
             animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .card.hidden {
+            display: none !important;
         }
 
         .card:nth-child(1) {
@@ -227,16 +260,29 @@
         .btn.loading .loader {
             display: block;
         }
-
-        /* Responsive adjustments */
-        @media (prefers-color-scheme: light) {
-            /* Enforce dark mode even on light devices for this brand */
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
+        <!-- Admin Panel (Hidden by default) -->
+        <div id="admin-panel">
+            <h2>⚙️ Конфигурация</h2>
+            <div class="form-group">
+                <label class="form-label">Цена Хулиган (копейки):</label>
+                <input type="number" id="admin-hooligan-price" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ссылка Секрет:</label>
+                <input type="text" id="admin-secret-link" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ссылка Матвей:</label>
+                <input type="text" id="admin-matvey-link" class="form-input">
+            </div>
+            <button class="btn" onclick="saveConfig()">Сохранить настройки</button>
+        </div>
+
         <!-- Header -->
         <header>
             <h1>Costume Project</h1>
@@ -246,7 +292,7 @@
         <div class="concert-grid">
 
             <!-- 1. Magic Standup "Hooligan" (16+) -> YooKassa -->
-            <div class="card">
+            <div class="card" id="card-hooligan">
                 <div class="card-image-container">
                     <img src="./assets/hooligan.png" alt="Магический стендап Хулиган" class="card-image">
                     <div class="age-badge">16+</div>
@@ -262,7 +308,7 @@
             </div>
 
             <!-- 2. Show "Secret" (12+) -> QuickTickets -->
-            <div class="card">
+            <div class="card" id="card-secret">
                 <div class="card-image-container">
                     <img src="./assets/secret.png" alt="Шоу Секрет" class="card-image">
                     <div class="age-badge">12+</div>
@@ -270,15 +316,14 @@
                 <div class="card-content">
                     <h2 class="card-title">Шоу «Секрет»</h2>
                     <p class="card-desc">Иллюзионное шоу, которое оставит больше вопросов, чем ответов.</p>
-                    <a href="https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5" target="_blank"
-                        class="btn">
+                    <a href="#" id="link-secret" target="_blank" class="btn">
                         Купить билет
                     </a>
                 </div>
             </div>
 
             <!-- 3. Performance "Save Matvey" (6+) -> QuickTickets -->
-            <div class="card">
+            <div class="card" id="card-matvey">
                 <div class="card-image-container">
                     <img src="./assets/matvey.png" alt="Спасти Матвея" class="card-image">
                     <div class="age-badge">6+</div>
@@ -286,8 +331,7 @@
                 <div class="card-content">
                     <h2 class="card-title">Спектакль «Спасти Матвея»</h2>
                     <p class="card-desc">Увлекательное приключение для всей семьи.</p>
-                    <a href="https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6" target="_blank"
-                        class="btn">
+                    <a href="#" id="link-matvey" target="_blank" class="btn">
                         Купить билет
                     </a>
                 </div>
@@ -297,51 +341,107 @@
     </div>
     <script>
         const tg = window.Telegram.WebApp;
-
         tg.ready();
-        tg.expand(); // Expand to full height
+        tg.expand();
 
-        // Theme params
         document.body.style.backgroundColor = tg.themeParams.bg_color || '#0d0d12';
 
-        // Qtickets URLs are handled directly in HTML links now.
-        // But we keep the object just in case we need dynamic behavior later.
-        const LINKS = {
-            secret: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5",
-            matvey: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6"
+        // Tunneled API URL (USER MUST UPDATE THIS IF TUNNEL CHANGES)
+        // Since we are running on GitHub pages, we need the tunnel URL to talk to backend
+        // We will try to guess it from `document.referrer` or just hardcode for verified tunnel
+        // For now, we will assume localhost if developing, or user needs to set it.
+        // ACTUALLY: Best way is to pass API_URL as a start param? No, too long.
+        // Let's hardcode the current tunnel for the user to update in GH.
+        // OR better: Default to local config, but if ?api_url= passed, use it.
+        const DEFAULT_CONFIG = {
+            prices: { hooligan: 150000 },
+            links: { 
+                secret: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5",
+                matvey: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6"
+            }
         };
 
-        function openQtickets(type) {
-            const url = LINKS[type];
-            if (url) {
-                tg.openLink(url);
+        // Parse Query Params
+        const urlParams = new URLSearchParams(window.location.search);
+        const isAdmin = urlParams.get('mode') === 'admin';
+        const userId = urlParams.get('uid');
+
+        // Apply default links first to avoid empty hrefs
+        applyConfig(DEFAULT_CONFIG);
+
+        // Fetch Dynamic Config (from Backend)
+        // NOTE: This fetch will fail on GitHub Pages if Backend is not on HTTPS with CORS.
+        // We will try to fetch if we have an API endpoint.
+        // User needs to provide the BACKEND URL manually in the Admin Panel or Code if hosted separately.
+        // For this demo, let's assume we are purely client-side unless Admin.
+        
+        async function fetchConfig() {
+            // Placeholder: In a real deploy, you'd fetch('https://my-backend.com/api/config')
+            // For now, we use defaults.
+        }
+
+        function applyConfig(cfg) {
+            document.getElementById('link-secret').href = cfg.links.secret;
+            document.getElementById('link-matvey').href = cfg.links.matvey;
+            
+            if (isAdmin) {
+                document.getElementById('admin-hooligan-price').value = cfg.prices.hooligan;
+                document.getElementById('admin-secret-link').value = cfg.links.secret;
+                document.getElementById('admin-matvey-link').value = cfg.links.matvey;
+            }
+        }
+
+        if (isAdmin) {
+            document.getElementById('admin-panel').style.display = 'block';
+        }
+
+        async function saveConfig() {
+            if (!isAdmin) return;
+            
+            const newConfig = {
+                prices: { hooligan: parseInt(document.getElementById('admin-hooligan-price').value) },
+                links: {
+                    secret: document.getElementById('admin-secret-link').value,
+                    matvey: document.getElementById('admin-matvey-link').value
+                }
+            };
+
+            // Here we would POST to the backend
+            // Because we don't have a fixed backend URL in this static file, 
+            // We tell the user via Alert to update the code OR we would fetch.
+            // For this specific local setup:
+            try {
+                // Try sending to localhost if running locally?
+                // Or send data back to Bot via sendData?
+                // YES! Send config back to bot, bot updates DB!
+                tg.sendData(JSON.stringify({ 
+                    action: 'update_config', 
+                    config: newConfig,
+                    secret: userId 
+                }));
+                // tg.close(); // Optional
+            } catch (e) {
+                alert("Ошибка сохранения: " + e.message);
             }
         }
 
         async function buyHooligan() {
             const btn = document.getElementById('btn-hooligan');
             if (btn.classList.contains('loading')) return;
-
             btn.classList.add('loading');
 
-            // Check if we are in Telegram
             if (!tg.initDataUnsafe?.user) {
-                alert("Пожалуйста, откройте это приложение в Telegram.");
+                alert("Откройте в Telegram.");
                 btn.classList.remove('loading');
                 return;
             }
 
             try {
-                console.log("Initiating Hooligan purchase...");
                 tg.sendData(JSON.stringify({ action: 'buy_hooligan' }));
-
             } catch (e) {
-                console.error(e);
-                alert("Ошибка при создании заказа.");
+                alert("Ошибка.");
             } finally {
-                setTimeout(() => {
-                    btn.classList.remove('loading');
-                }, 1000); // Remove loading after 1s for UX
+                setTimeout(() => btn.classList.remove('loading'), 1000);
             }
         }
     </script>
