@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Costume Project Concerts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d0d12;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent-color: #eb4d4b;
+            --accent-hover: #ff7675;
+            --card-radius: 20px;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: radial-gradient(circle at 10% 20%, rgba(90, 30, 150, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(200, 50, 50, 0.15) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .concert-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-image-container {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.1);
+        }
+
+        .age-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 20px rgba(235, 77, 75, 0.4);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loader */
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn.loading .text {
+            display: none;
+        }
+
+        .btn.loading .loader {
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (prefers-color-scheme: light) {
+            /* Enforce dark mode even on light devices for this brand */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>Costume Project</h1>
+            <p class="subtitle">Выберите мероприятие</p>
+        </header>
+
+        <div class="concert-grid">
+
+            <!-- 1. Magic Standup "Hooligan" (16+) -> YooKassa -->
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="./assets/hooligan.png" alt="Магический стендап Хулиган" class="card-image">
+                    <div class="age-badge">16+</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Магический стендап «Хулиган»</h2>
+                    <p class="card-desc">Непревзойденное шоу магии и комедии. Билеты через Telegram (ЮKassa).</p>
+                    <button class="btn" id="btn-hooligan" onclick="buyHooligan()">
+                        <span class="text">Купить билет</span>
+                        <div class="loader"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Show "Secret" (12+) -> QuickTickets -->
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="./assets/secret.png" alt="Шоу Секрет" class="card-image">
+                    <div class="age-badge">12+</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Шоу «Секрет»</h2>
+                    <p class="card-desc">Иллюзионное шоу, которое оставит больше вопросов, чем ответов.</p>
+                    <a href="https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5" target="_blank"
+                        class="btn">
+                        Купить билет
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. Performance "Save Matvey" (6+) -> QuickTickets -->
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="./assets/matvey.png" alt="Спасти Матвея" class="card-image">
+                    <div class="age-badge">6+</div>
+                </div>
+                <div class="card-content">
+                    <h2 class="card-title">Спектакль «Спасти Матвея»</h2>
+                    <p class="card-desc">Увлекательное приключение для всей семьи.</p>
+                    <a href="https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6" target="_blank"
+                        class="btn">
+                        Купить билет
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <script>
+        const tg = window.Telegram.WebApp;
+
+        tg.ready();
+        tg.expand(); // Expand to full height
+
+        // Theme params
+        document.body.style.backgroundColor = tg.themeParams.bg_color || '#0d0d12';
+
+        // Qtickets URLs are handled directly in HTML links now.
+        // But we keep the object just in case we need dynamic behavior later.
+        const LINKS = {
+            secret: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5",
+            matvey: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6"
+        };
+
+        function openQtickets(type) {
+            const url = LINKS[type];
+            if (url) {
+                tg.openLink(url);
+            }
+        }
+
+        async function buyHooligan() {
+            const btn = document.getElementById('btn-hooligan');
+            if (btn.classList.contains('loading')) return;
+
+            btn.classList.add('loading');
+
+            // Check if we are in Telegram
+            if (!tg.initDataUnsafe?.user) {
+                alert("Пожалуйста, откройте это приложение в Telegram.");
+                btn.classList.remove('loading');
+                return;
+            }
+
+            try {
+                console.log("Initiating Hooligan purchase...");
+                tg.sendData(JSON.stringify({ action: 'buy_hooligan' }));
+
+            } catch (e) {
+                console.error(e);
+                alert("Ошибка при создании заказа.");
+            } finally {
+                setTimeout(() => {
+                    btn.classList.remove('loading');
+                }, 1000); // Remove loading after 1s for UX
+            }
+        }
+    </script>
+</body>
+
+</html>
