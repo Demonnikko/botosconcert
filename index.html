@@ -1113,14 +1113,13 @@
                 document.getElementById('admin-hooligan-venue').value = cfg.location.hooligan.name || '';
                 document.getElementById('admin-hooligan-address').value = cfg.location.hooligan.address || '';
             }
-        }
 
-        // Update user facing prices in Hooligan modal
-        if (cfg.prices?.hooligan && typeof cfg.prices.hooligan === 'object') {
-            document.getElementById('display-price-eco').textContent = (cfg.prices.hooligan.eco / 100) + ' ₽';
-            document.getElementById('display-price-std').textContent = (cfg.prices.hooligan.std / 100) + ' ₽';
-            document.getElementById('display-price-vip').textContent = (cfg.prices.hooligan.vip / 100) + ' ₽';
-        }
+            // Update user facing prices in Hooligan modal
+            if (cfg.prices?.hooligan && typeof cfg.prices.hooligan === 'object') {
+                document.getElementById('display-price-eco').textContent = (cfg.prices.hooligan.eco / 100) + ' ₽';
+                document.getElementById('display-price-std').textContent = (cfg.prices.hooligan.std / 100) + ' ₽';
+                document.getElementById('display-price-vip').textContent = (cfg.prices.hooligan.vip / 100) + ' ₽';
+            }
         }
 
         function updateTicketsBadge(show, count) {
