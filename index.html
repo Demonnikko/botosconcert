@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Costume Project Concerts</title>
+    <title>KOSTYUK PROJECT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -15,6 +16,7 @@
             --text-secondary: #aaaaaa;
             --accent-color: #eb4d4b;
             --accent-hover: #ff7675;
+            --gold-color: #ffd700;
             --card-radius: 20px;
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             --font-family: 'Inter', system-ui, sans-serif;
@@ -33,13 +35,61 @@
             overflow-x: hidden;
             min-height: 100vh;
             padding: 20px;
+            padding-bottom: 40px;
             background-image: radial-gradient(circle at 10% 20%, rgba(90, 30, 150, 0.2) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(200, 50, 50, 0.15) 0%, transparent 40%);
+            position: relative;
+        }
+
+        /* Magic Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, var(--gold-color) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in-out;
+            opacity: 0;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(0deg);
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) rotate(720deg);
+            }
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
+            position: relative;
+            z-index: 1;
         }
 
         header {
@@ -53,9 +103,22 @@
             font-weight: 800;
             letter-spacing: -1px;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+            background: linear-gradient(135deg, #fff 0%, var(--gold-color) 50%, #fff 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
         }
 
         .subtitle {
@@ -79,6 +142,16 @@
             border: 1px solid var(--accent-color);
         }
 
+        #admin-panel h2 {
+            margin-bottom: 15px;
+        }
+
+        #admin-panel h3 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--gold-color);
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -87,6 +160,7 @@
             display: block;
             margin-bottom: 5px;
             color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .form-input {
@@ -96,6 +170,7 @@
             border: 1px solid #444;
             background: rgba(255, 255, 255, 0.1);
             color: white;
+            font-size: 1rem;
         }
 
         .card {
@@ -149,7 +224,7 @@
         }
 
         .card:hover .card-image {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .age-badge {
@@ -165,6 +240,34 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
+        /* Tickets Left Badge */
+        .tickets-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, #eb4d4b 0%, #ff7675 100%);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
         .card-content {
             padding: 20px;
         }
@@ -178,17 +281,47 @@
         .card-desc {
             color: var(--text-secondary);
             font-size: 0.95rem;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             line-height: 1.4;
         }
 
+        /* Countdown Timer */
+        .countdown {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 55px;
+        }
+
+        .countdown-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold-color);
+        }
+
+        .countdown-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Pulsing Button */
         .btn {
             display: block;
             width: 100%;
             padding: 14px;
             border: none;
             border-radius: 12px;
-            background: var(--accent-color);
+            background: linear-gradient(135deg, var(--accent-color) 0%, #ff6b6b 100%);
             color: white;
             font-weight: 600;
             font-size: 1rem;
@@ -196,6 +329,43 @@
             transition: var(--transition);
             text-align: center;
             text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            animation: pulse-btn 2s infinite;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                left: -100%;
+            }
+
+            50%,
+            100% {
+                left: 100%;
+            }
+        }
+
+        @keyframes pulse-btn {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(235, 77, 75, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 20px 5px rgba(235, 77, 75, 0.4);
+            }
         }
 
         .btn:active {
@@ -203,8 +373,8 @@
         }
 
         .btn:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 0 20px rgba(235, 77, 75, 0.4);
+            background: linear-gradient(135deg, var(--accent-hover) 0%, #ff8787 100%);
+            box-shadow: 0 0 30px rgba(235, 77, 75, 0.6);
         }
 
         @keyframes fadeInDown {
@@ -234,7 +404,7 @@
         /* Loader */
         .loader {
             border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid var(--accent-color);
+            border-top: 3px solid white;
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -260,14 +430,253 @@
         .btn.loading .loader {
             display: block;
         }
+
+        .btn.loading {
+            animation: none;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: #1a1a20;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUpModal 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        @keyframes slideUpModal {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            position: relative;
+            height: 300px;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-body {
+            padding: 20px;
+            margin-top: -60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.1;
+        }
+
+        .modal-tags {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ccc;
+            margin-bottom: 30px;
+            white-space: pre-line;
+        }
+
+        .highlight {
+            color: var(--gold-color);
+            font-weight: 600;
+        }
+
+        .modal-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, #0d0d12 80%, transparent);
+            z-index: 10;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Magic Particles Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modal-hooligan">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('hooligan')">✕</button>
+            <div class="modal-header">
+                <img src="./assets/hooligan.png" class="modal-image">
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title">ХУЛИgan</h2>
+                <div class="modal-tags">
+                    <span class="tag">16+</span>
+                    <span class="tag">Стендап</span>
+                    <span class="tag">Магия</span>
+                </div>
+                <div class="modal-desc">
+                    <span class="highlight">Магический стендап для тех, кто вырос из детских сказок.</span>
+
+                    Сумасшедший коктейль из остроумного стендапа и дерзких фокусов, которые заставят вас рыдать от
+                    смеха.
+
+                    Здесь берут предметы зрителей, разбивают в дребезги привычную магию и доказывают, что волшебство
+                    бывает взрослым, ироничным и по-хулигански смешным.
+
+                    <span class="highlight">Первое и единственное шоу такого формата в Ярославле.</span>
+
+                    Пришло время оторваться по-взрослому. Дмитрий Костюк — иллюзионист более чем с 10-летним стажем,
+                    лауреат международных премий, который переворачивает представление о магии с ног на голову.
+                </div>
+                <div style="height: 80px;"></div> <!-- Spacer for footer -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="buyHooligan(); closeModal('hooligan')">
+                    <span class="text">🎟 Купить билет</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Placeholder Modals for Secret and Matvey (can be filled similarly) -->
+    <div class="modal-overlay" id="modal-secret">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('secret')">✕</button>
+            <div class="modal-header">
+                <img src="./assets/secret.png" class="modal-image">
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title">Шоу «Секрет»</h2>
+                <div class="modal-tags">
+                    <span class="tag">12+</span>
+                    <span class="tag">Философия</span>
+                    <span class="tag">Магия</span>
+                </div>
+                <div class="modal-desc">
+                    <span class="highlight">Фокусы, которые меняют не предметы, а взгляд на жизнь.</span>
+
+                    Философское шоу для тех, кто любит думать и чувствовать. Мощные современные иллюзии на грани
+                    безумия, смех и удивление — всё это инструменты, чтобы рассказать историю о становлении личности,
+                    вере, любви и преодолении.
+
+                    Это про то, как стать тем, кем ты хочешь. Для зрителей, которые ищут не просто зрелище, а
+                    впечатление со смыслом.
+
+                    <br>
+                    <i>Ваш проводник в этот мир — Дмитрий Костюк, иллюзионист с более чем 10-летним стажем, лауреат
+                        международных премий. Его авторское шоу — это синтез высочайшего мастерства и глубокой личной
+                        истории.</i>
+                </div>
+                <div style="height: 40px;"></div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="modal-link-secret" target="_blank" class="btn">🎟 Купить билет</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-matvey">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('matvey')">✕</button>
+            <div class="modal-header">
+                <img src="./assets/matvey.png" class="modal-image">
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title">Магический квест-спектакль «Спасти Матвея»</h2>
+                <div class="modal-tags">
+                    <span class="tag">6+</span>
+                    <span class="tag">Для всей семьи</span>
+                    <span class="tag">Интерактив</span>
+                </div>
+                <div class="modal-desc">
+                    <span class="highlight">Ваш ребенок решает, чем закончится волшебная история!</span>
+
+                    Уникальное интерактивное приключение, где от выбора детей и их родителей зависит финал — счастливый
+                    или нет.
+
+                    Юные зрители не просто смотрят, а становятся героями, участвуя в фокусах и принимая решения. Это
+                    первый в Ярославле магический спектакль-квест, который в увлекательной форме говорит о настоящих
+                    семейных ценностях: взаимопомощи, смелости и доброте.
+
+                    Создатель — Дмитрий Костюк, профессиональный иллюзионист и автор, который знает, как увлечь и детей,
+                    и взрослых настоящим волшебством.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" id="modal-link-matvey" target="_blank" class="btn">🎟 Купить билет</a>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Admin Panel (Hidden by default) -->
         <div id="admin-panel">
-            <h2>⚙️ Конфигурация</h2>
+            <h2>⚙️ Панель управления</h2>
+
+            <h3>💰 Цены и ссылки</h3>
             <div class="form-group">
                 <label class="form-label">Цена Хулиган (копейки):</label>
                 <input type="number" id="admin-hooligan-price" class="form-input">
@@ -280,7 +689,36 @@
                 <label class="form-label">Ссылка Матвей:</label>
                 <input type="text" id="admin-matvey-link" class="form-input">
             </div>
-            <button class="btn" onclick="saveConfig()">Сохранить настройки</button>
+
+            <h3>📅 Даты шоу (для таймера)</h3>
+            <div class="form-group">
+                <label class="form-label">Дата Хулиган:</label>
+                <input type="datetime-local" id="admin-hooligan-date" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Дата Секрет:</label>
+                <input type="datetime-local" id="admin-secret-date" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Дата Матвей:</label>
+                <input type="datetime-local" id="admin-matvey-date" class="form-input">
+            </div>
+
+            <h3>🎟 Осталось билетов</h3>
+            <div class="form-group">
+                <label class="form-label">Билетов Хулиган:</label>
+                <input type="number" id="admin-hooligan-tickets" class="form-input" min="0">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Билетов Секрет:</label>
+                <input type="number" id="admin-secret-tickets" class="form-input" min="0">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Билетов Матвей:</label>
+                <input type="number" id="admin-matvey-tickets" class="form-input" min="0">
+            </div>
+
+            <button class="btn" onclick="saveConfig()">💾 Сохранить настройки</button>
         </div>
 
         <!-- Header -->
@@ -291,73 +729,170 @@
 
         <div class="concert-grid">
 
-            <!-- 1. Magic Standup "Hooligan" (16+) -> YooKassa -->
-            <div class="card" id="card-hooligan">
+            <!-- 1. Magic Standup "Hooligan" (16+) -->
+            <div class="card" id="card-hooligan" onclick="openModal('hooligan')">
                 <div class="card-image-container">
                     <img src="./assets/hooligan.png" alt="Магический стендап Хулиган" class="card-image">
                     <div class="age-badge">16+</div>
+                    <div class="tickets-badge" id="tickets-hooligan">🔥 Осталось: <span>--</span></div>
                 </div>
                 <div class="card-content">
                     <h2 class="card-title">Магический стендап «Хулиган»</h2>
-                    <p class="card-desc">Непревзойденное шоу магии и комедии. Билеты через Telegram (ЮKassa).</p>
-                    <button class="btn" id="btn-hooligan" onclick="buyHooligan()">
-                        <span class="text">Купить билет</span>
+                    <p class="card-desc">Непревзойденное шоу магии и комедии.</p>
+                    <div class="countdown" id="countdown-hooligan">
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-days>--</div>
+                            <div class="countdown-label">дней</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-hours>--</div>
+                            <div class="countdown-label">часов</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-mins>--</div>
+                            <div class="countdown-label">минут</div>
+                        </div>
+                    </div>
+                    <button class="btn" id="btn-hooligan" onclick="event.stopPropagation(); buyHooligan()">
+                        <span class="text">🎟 Купить билет</span>
                         <div class="loader"></div>
                     </button>
                 </div>
             </div>
 
-            <!-- 2. Show "Secret" (12+) -> QuickTickets -->
-            <div class="card" id="card-secret">
+            <!-- 2. Show "Secret" (12+) -->
+            <div class="card" id="card-secret" onclick="openModal('secret')">
                 <div class="card-image-container">
                     <img src="./assets/secret.png" alt="Шоу Секрет" class="card-image">
                     <div class="age-badge">12+</div>
+                    <div class="tickets-badge" id="tickets-secret">🔥 Осталось: <span>--</span></div>
                 </div>
                 <div class="card-content">
                     <h2 class="card-title">Шоу «Секрет»</h2>
-                    <p class="card-desc">Иллюзионное шоу, которое оставит больше вопросов, чем ответов.</p>
-                    <a href="#" id="link-secret" target="_blank" class="btn">
-                        Купить билет
+                    <p class="card-desc">Фокусы, которые меняют не предметы, а взгляд на жизнь.</p>
+                    <div class="countdown" id="countdown-secret">
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-days>--</div>
+                            <div class="countdown-label">дней</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-hours>--</div>
+                            <div class="countdown-label">часов</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-mins>--</div>
+                            <div class="countdown-label">минут</div>
+                        </div>
+                    </div>
+                    <a href="#" id="link-secret" target="_blank" class="btn" onclick="event.stopPropagation()">
+                        <span class="text">🎟 Купить билет</span>
                     </a>
                 </div>
             </div>
 
-            <!-- 3. Performance "Save Matvey" (6+) -> QuickTickets -->
-            <div class="card" id="card-matvey">
+            <!-- 3. Performance "Save Matvey" (6+) -->
+            <div class="card" id="card-matvey" onclick="openModal('matvey')">
                 <div class="card-image-container">
                     <img src="./assets/matvey.png" alt="Спасти Матвея" class="card-image">
                     <div class="age-badge">6+</div>
+                    <div class="tickets-badge" id="tickets-matvey">🔥 Осталось: <span>--</span></div>
                 </div>
                 <div class="card-content">
-                    <h2 class="card-title">Спектакль «Спасти Матвея»</h2>
+                    <h2 class="card-title">Магический квест-спектакль «Спасти Матвея»</h2>
                     <p class="card-desc">Увлекательное приключение для всей семьи.</p>
-                    <a href="#" id="link-matvey" target="_blank" class="btn">
-                        Купить билет
+                    <div class="countdown" id="countdown-matvey">
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-days>--</div>
+                            <div class="countdown-label">дней</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-hours>--</div>
+                            <div class="countdown-label">часов</div>
+                        </div>
+                        <div class="countdown-item">
+                            <div class="countdown-value" data-mins>--</div>
+                            <div class="countdown-label">минут</div>
+                        </div>
+                    </div>
+                    <a href="#" id="link-matvey" target="_blank" class="btn" onclick="event.stopPropagation()">
+                        <span class="text">🎟 Купить билет</span>
                     </a>
                 </div>
             </div>
 
         </div>
     </div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
         tg.expand();
+        // Force full height to prevent scrolling glitches
+        tg.enableClosingConfirmation();
 
         document.body.style.backgroundColor = tg.themeParams.bg_color || '#0d0d12';
 
-        // Tunneled API URL (USER MUST UPDATE THIS IF TUNNEL CHANGES)
-        // Since we are running on GitHub pages, we need the tunnel URL to talk to backend
-        // We will try to guess it from `document.referrer` or just hardcode for verified tunnel
-        // For now, we will assume localhost if developing, or user needs to set it.
-        // ACTUALLY: Best way is to pass API_URL as a start param? No, too long.
-        // Let's hardcode the current tunnel for the user to update in GH.
-        // OR better: Default to local config, but if ?api_url= passed, use it.
+        // Modals Logic
+        function openModal(id) {
+            const modal = document.getElementById('modal-' + id);
+            if (modal) {
+                modal.classList.add('active');
+                tg.BackButton.show();
+                tg.BackButton.onClick(() => closeModal(id));
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById('modal-' + id);
+            if (modal) {
+                modal.classList.remove('active');
+                tg.BackButton.hide();
+                tg.BackButton.offClick();
+            }
+        }
+
+        // Create magic particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+
+                // Random sizes
+                const size = 2 + Math.random() * 4;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+
+                // Random colors (gold, white, light purple)
+                const colors = ['#ffd700', '#ffffff', '#c9a0ff', '#ffb347'];
+                particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]} 0%, transparent 70%)`;
+
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Default Config with dates and tickets
         const DEFAULT_CONFIG = {
             prices: { hooligan: 150000 },
             links: {
                 secret: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5",
                 matvey: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6"
+            },
+            dates: {
+                hooligan: "2026-03-15T19:00",
+                secret: "2026-02-28T18:00",
+                matvey: "2026-03-07T15:00"
+            },
+            tickets: {
+                hooligan: 23,
+                secret: 45,
+                matvey: 67
             }
         };
 
@@ -366,29 +901,95 @@
         const isAdmin = urlParams.get('mode') === 'admin';
         const userId = urlParams.get('uid');
 
-        // Apply default links first to avoid empty hrefs
+        // Apply config
         applyConfig(DEFAULT_CONFIG);
 
-        // Fetch Dynamic Config (from Backend)
-        // NOTE: This fetch will fail on GitHub Pages if Backend is not on HTTPS with CORS.
-        // We will try to fetch if we have an API endpoint.
-        // User needs to provide the BACKEND URL manually in the Admin Panel or Code if hosted separately.
-        // For this demo, let's assume we are purely client-side unless Admin.
-
-        async function fetchConfig() {
-            // Placeholder: In a real deploy, you'd fetch('https://my-backend.com/api/config')
-            // For now, we use defaults.
-        }
-
         function applyConfig(cfg) {
+            // Links
             document.getElementById('link-secret').href = cfg.links.secret;
             document.getElementById('link-matvey').href = cfg.links.matvey;
 
+            // Modal Links
+            const mlSecret = document.getElementById('modal-link-secret');
+            if (mlSecret) mlSecret.href = cfg.links.secret;
+            const mlMatvey = document.getElementById('modal-link-matvey');
+            if (mlMatvey) mlMatvey.href = cfg.links.matvey;
+
+            // Tickets remaining
+            if (cfg.tickets) {
+                updateTicketsBadge('hooligan', cfg.tickets.hooligan);
+                updateTicketsBadge('secret', cfg.tickets.secret);
+                updateTicketsBadge('matvey', cfg.tickets.matvey);
+            }
+
+            // Countdowns
+            if (cfg.dates) {
+                startCountdown('hooligan', cfg.dates.hooligan);
+                startCountdown('secret', cfg.dates.secret);
+                startCountdown('matvey', cfg.dates.matvey);
+            }
+
+            // Admin fields
             if (isAdmin) {
                 document.getElementById('admin-hooligan-price').value = cfg.prices.hooligan;
                 document.getElementById('admin-secret-link').value = cfg.links.secret;
                 document.getElementById('admin-matvey-link').value = cfg.links.matvey;
+
+                if (cfg.dates) {
+                    document.getElementById('admin-hooligan-date').value = cfg.dates.hooligan;
+                    document.getElementById('admin-secret-date').value = cfg.dates.secret;
+                    document.getElementById('admin-matvey-date').value = cfg.dates.matvey;
+                }
+
+                if (cfg.tickets) {
+                    document.getElementById('admin-hooligan-tickets').value = cfg.tickets.hooligan;
+                    document.getElementById('admin-secret-tickets').value = cfg.tickets.secret;
+                    document.getElementById('admin-matvey-tickets').value = cfg.tickets.matvey;
+                }
             }
+        }
+
+        function updateTicketsBadge(show, count) {
+            const badge = document.getElementById(`tickets-${show}`);
+            if (badge && count !== undefined) {
+                const span = badge.querySelector('span');
+                span.textContent = count;
+
+                // Change color based on urgency
+                if (count <= 10) {
+                    badge.style.background = 'linear-gradient(135deg, #ff0000 0%, #ff4444 100%)';
+                } else if (count <= 30) {
+                    badge.style.background = 'linear-gradient(135deg, #ff6600 0%, #ff9944 100%)';
+                }
+            }
+        }
+
+        function startCountdown(show, dateStr) {
+            const container = document.getElementById(`countdown-${show}`);
+            if (!container || !dateStr) return;
+
+            const targetDate = new Date(dateStr).getTime();
+
+            function update() {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+
+                if (diff <= 0) {
+                    container.innerHTML = '<div style="color: var(--gold-color); font-weight: 600;">🎉 Сегодня!</div>';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                container.querySelector('[data-days]').textContent = days;
+                container.querySelector('[data-hours]').textContent = hours;
+                container.querySelector('[data-mins]').textContent = mins;
+            }
+
+            update();
+            setInterval(update, 60000); // Update every minute
         }
 
         if (isAdmin) {
@@ -403,23 +1004,25 @@
                 links: {
                     secret: document.getElementById('admin-secret-link').value,
                     matvey: document.getElementById('admin-matvey-link').value
+                },
+                dates: {
+                    hooligan: document.getElementById('admin-hooligan-date').value,
+                    secret: document.getElementById('admin-secret-date').value,
+                    matvey: document.getElementById('admin-matvey-date').value
+                },
+                tickets: {
+                    hooligan: parseInt(document.getElementById('admin-hooligan-tickets').value),
+                    secret: parseInt(document.getElementById('admin-secret-tickets').value),
+                    matvey: parseInt(document.getElementById('admin-matvey-tickets').value)
                 }
             };
 
-            // Here we would POST to the backend
-            // Because we don't have a fixed backend URL in this static file, 
-            // We tell the user via Alert to update the code OR we would fetch.
-            // For this specific local setup:
             try {
-                // Try sending to localhost if running locally?
-                // Or send data back to Bot via sendData?
-                // YES! Send config back to bot, bot updates DB!
                 tg.sendData(JSON.stringify({
                     action: 'update_config',
                     config: newConfig,
                     secret: userId
                 }));
-                // tg.close(); // Optional
             } catch (e) {
                 alert("Ошибка сохранения: " + e.message);
             }
