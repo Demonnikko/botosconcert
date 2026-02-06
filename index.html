@@ -136,15 +136,15 @@
 
         .card-image-container {
             width: 100%;
-            height: 250px;
+            height: auto;
             overflow: hidden;
             position: relative;
         }
 
         .card-image {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            display: block;
             transition: transform 0.6s ease;
         }
 
@@ -285,7 +285,7 @@
 
         <!-- Header -->
         <header>
-            <h1>Costume Project</h1>
+            <h1>KOSTYUK PROJECT</h1>
             <p class="subtitle">Выберите мероприятие</p>
         </header>
 
@@ -355,7 +355,7 @@
         // OR better: Default to local config, but if ?api_url= passed, use it.
         const DEFAULT_CONFIG = {
             prices: { hooligan: 150000 },
-            links: { 
+            links: {
                 secret: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5",
                 matvey: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6"
             }
@@ -374,7 +374,7 @@
         // We will try to fetch if we have an API endpoint.
         // User needs to provide the BACKEND URL manually in the Admin Panel or Code if hosted separately.
         // For this demo, let's assume we are purely client-side unless Admin.
-        
+
         async function fetchConfig() {
             // Placeholder: In a real deploy, you'd fetch('https://my-backend.com/api/config')
             // For now, we use defaults.
@@ -383,7 +383,7 @@
         function applyConfig(cfg) {
             document.getElementById('link-secret').href = cfg.links.secret;
             document.getElementById('link-matvey').href = cfg.links.matvey;
-            
+
             if (isAdmin) {
                 document.getElementById('admin-hooligan-price').value = cfg.prices.hooligan;
                 document.getElementById('admin-secret-link').value = cfg.links.secret;
@@ -397,7 +397,7 @@
 
         async function saveConfig() {
             if (!isAdmin) return;
-            
+
             const newConfig = {
                 prices: { hooligan: parseInt(document.getElementById('admin-hooligan-price').value) },
                 links: {
@@ -414,10 +414,10 @@
                 // Try sending to localhost if running locally?
                 // Or send data back to Bot via sendData?
                 // YES! Send config back to bot, bot updates DB!
-                tg.sendData(JSON.stringify({ 
-                    action: 'update_config', 
+                tg.sendData(JSON.stringify({
+                    action: 'update_config',
                     config: newConfig,
-                    secret: userId 
+                    secret: userId
                 }));
                 // tg.close(); // Optional
             } catch (e) {
