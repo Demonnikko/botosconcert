@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
             --bg-color: #0d0d12;
@@ -556,6 +557,44 @@
             background: linear-gradient(to top, #0d0d12 80%, transparent);
             z-index: 10;
         }
+
+        /* Tier Selector Styles */
+        .tier-option {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tier-option input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .tier-content {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid transparent;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .tier-option input:checked+.tier-content {
+            border-color: var(--gold-color);
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .tier-name {
+            font-weight: 600;
+        }
+
+        .tier-price {
+            font-weight: 700;
+            color: var(--gold-color);
+        }
     </style>
 </head>
 
@@ -591,7 +630,36 @@
                     Пришло время оторваться по-взрослому. Дмитрий Костюк — иллюзионист более чем с 10-летним стажем,
                     лауреат международных премий, который переворачивает представление о магии с ног на голову.
                 </div>
-                <div style="height: 80px;"></div> <!-- Spacer for footer -->
+                <!-- Ticket Tiers Selector -->
+                <div class="ticket-tiers" style="margin-top: 15px;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Выберите категорию:</h3>
+
+                    <label class="tier-option">
+                        <input type="radio" name="hooligan-tier" value="eco" checked>
+                        <div class="tier-content">
+                            <div class="tier-name">Эконом</div>
+                            <div class="tier-price" id="display-price-eco">-- ₽</div>
+                        </div>
+                    </label>
+
+                    <label class="tier-option">
+                        <input type="radio" name="hooligan-tier" value="std">
+                        <div class="tier-content">
+                            <div class="tier-name">Стандарт</div>
+                            <div class="tier-price" id="display-price-std">-- ₽</div>
+                        </div>
+                    </label>
+
+                    <label class="tier-option">
+                        <input type="radio" name="hooligan-tier" value="vip">
+                        <div class="tier-content">
+                            <div class="tier-name">VIP</div>
+                            <div class="tier-price" id="display-price-vip">-- ₽</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div style="height: 100px;"></div> <!-- Spacer for footer -->
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="buyHooligan(); closeModal('hooligan')">
@@ -630,7 +698,10 @@
                         международных премий. Его авторское шоу — это синтез высочайшего мастерства и глубокой личной
                         истории.</i>
                 </div>
-                <div style="height: 40px;"></div>
+                <div class="price-info" style="margin-top: 15px; font-weight: 600; color: var(--gold-color);">
+                    💰 Стоимость билетов: 800 - 1400 ₽
+                </div>
+                <div style="height: 100px;"></div>
             </div>
             <div class="modal-footer">
                 <a href="#" id="modal-link-secret" target="_blank" class="btn">🎟 Купить билет</a>
@@ -664,9 +735,51 @@
                     Создатель — Дмитрий Костюк, профессиональный иллюзионист и автор, который знает, как увлечь и детей,
                     и взрослых настоящим волшебством.
                 </div>
+                <div class="price-info" style="margin-top: 15px; font-weight: 600; color: var(--gold-color);">
+                    💰 Стоимость билетов: 500 - 900 ₽
+                </div>
+                <div style="height: 100px;"></div>
             </div>
             <div class="modal-footer">
                 <a href="#" id="modal-link-matvey" target="_blank" class="btn">🎟 Купить билет</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-mytickets">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('mytickets')">✕</button>
+            <div class="modal-body" style="margin-top: 60px; padding-top: 20px;">
+                <h2 class="modal-title">Мои билеты</h2>
+
+                <div id="tickets-list">
+                    <p style="color: #666; text-align: center; margin: 20px 0;">Загрузка...</p>
+                </div>
+
+                <div
+                    style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px; margin-top: 20px; border: 1px dashed var(--text-secondary);">
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+                        ℹ️ <b>Билеты на другие шоу</b><br>
+                        Если вы приобрели билеты на «Секрет» или «Спасти Матвея», они были отправлены на вашу
+                        электронную почту билетным сервисом <b>QuickTickets</b>. Проверьте папку "Входящие" или "Спам".
+                    </p>
+                </div>
+
+                <div style="height: 100px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal-scanner">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeScanner()">✕</button>
+            <div class="modal-body" style="margin-top: 40px;">
+                <h2 class="modal-title">Сканер билетов</h2>
+                <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden;"></div>
+                <div id="scan-result"
+                    style="margin-top: 20px; text-align: center; white-space: pre-line; min-height: 50px;">
+                    Наведите камеру на QR-код
+                </div>
             </div>
         </div>
     </div>
@@ -675,11 +788,27 @@
         <!-- Admin Panel (Hidden by default) -->
         <div id="admin-panel">
             <h2>⚙️ Панель управления</h2>
+            <button class="btn" style="background: #2ed573; margin-bottom: 20px;" onclick="openScanner()">📷 Сканер
+                QR-кодов</button>
+            <a href="/api/export-guests" target="_blank" class="btn"
+                style="background: #3498db; margin-bottom: 20px; text-decoration: none; display: block; text-align: center;">📥
+                Скачать список (CSV)</a>
+            <a href="/scanner.html" target="_blank" class="btn"
+                style="background: #9b59b6; margin-bottom: 20px; text-decoration: none; display: block; text-align: center;">📱
+                Открыть SMART-СКАНЕР</a>
 
             <h3>💰 Цены и ссылки</h3>
             <div class="form-group">
-                <label class="form-label">Цена Хулиган (копейки):</label>
-                <input type="number" id="admin-hooligan-price" class="form-input">
+                <label class="form-label">Цена Хулиган Эконом (коп):</label>
+                <input type="number" id="admin-hooligan-price-eco" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Цена Хулиган Стандарт (коп):</label>
+                <input type="number" id="admin-hooligan-price-std" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Цена Хулиган VIP (коп):</label>
+                <input type="number" id="admin-hooligan-price-vip" class="form-input">
             </div>
             <div class="form-group">
                 <label class="form-label">Ссылка Секрет:</label>
@@ -725,6 +854,11 @@
         <header>
             <h1>KOSTYUK PROJECT</h1>
             <p class="subtitle">Выберите мероприятие</p>
+            <button class="btn"
+                style="background: rgba(255, 255, 255, 0.1); margin-top: 15px; font-size: 0.9rem; padding: 10px;"
+                onclick="openMyTickets()">
+                🎟 Мои билеты
+            </button>
         </header>
 
         <div class="concert-grid">
@@ -879,7 +1013,13 @@
 
         // Default Config with dates and tickets
         const DEFAULT_CONFIG = {
-            prices: { hooligan: 150000 },
+            prices: {
+                hooligan: {
+                    eco: 100000,
+                    std: 150000,
+                    vip: 250000
+                }
+            },
             links: {
                 secret: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s5",
                 matvey: "https://quicktickets.ru/yaroslavl-illyuzionist-dmitrij-kostyuk/s6"
@@ -891,8 +1031,8 @@
             },
             tickets: {
                 hooligan: 23,
-                secret: 45,
-                matvey: 67
+                secret: 96,
+                matvey: 639
             }
         };
 
@@ -900,6 +1040,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         const isAdmin = urlParams.get('mode') === 'admin';
         const userId = urlParams.get('uid');
+
+        if (urlParams.get('mode') === 'mytickets') {
+            setTimeout(openMyTickets, 500); // Small delay to ensuring clean load
+        }
 
         // Apply config
         applyConfig(DEFAULT_CONFIG);
@@ -931,7 +1075,13 @@
 
             // Admin fields
             if (isAdmin) {
-                document.getElementById('admin-hooligan-price').value = cfg.prices.hooligan;
+                // Check if prices.hooligan is object or number (compatibility)
+                const hPrices = typeof cfg.prices.hooligan === 'object' ? cfg.prices.hooligan : { eco: 0, std: 0, vip: 0 };
+
+                document.getElementById('admin-hooligan-price-eco').value = hPrices.eco;
+                document.getElementById('admin-hooligan-price-std').value = hPrices.std;
+                document.getElementById('admin-hooligan-price-vip').value = hPrices.vip;
+
                 document.getElementById('admin-secret-link').value = cfg.links.secret;
                 document.getElementById('admin-matvey-link').value = cfg.links.matvey;
 
@@ -946,6 +1096,13 @@
                     document.getElementById('admin-secret-tickets').value = cfg.tickets.secret;
                     document.getElementById('admin-matvey-tickets').value = cfg.tickets.matvey;
                 }
+            }
+
+            // Update user facing prices in Hooligan modal
+            if (cfg.prices?.hooligan && typeof cfg.prices.hooligan === 'object') {
+                document.getElementById('display-price-eco').textContent = (cfg.prices.hooligan.eco / 100) + ' ₽';
+                document.getElementById('display-price-std').textContent = (cfg.prices.hooligan.std / 100) + ' ₽';
+                document.getElementById('display-price-vip').textContent = (cfg.prices.hooligan.vip / 100) + ' ₽';
             }
         }
 
@@ -1000,7 +1157,13 @@
             if (!isAdmin) return;
 
             const newConfig = {
-                prices: { hooligan: parseInt(document.getElementById('admin-hooligan-price').value) },
+                prices: {
+                    hooligan: {
+                        eco: parseInt(document.getElementById('admin-hooligan-price-eco').value) || 0,
+                        std: parseInt(document.getElementById('admin-hooligan-price-std').value) || 0,
+                        vip: parseInt(document.getElementById('admin-hooligan-price-vip').value) || 0
+                    }
+                },
                 links: {
                     secret: document.getElementById('admin-secret-link').value,
                     matvey: document.getElementById('admin-matvey-link').value
@@ -1039,13 +1202,143 @@
                 return;
             }
 
+            // Get selected category
+            const selectedTier = document.querySelector('input[name="hooligan-tier"]:checked');
+            if (!selectedTier) {
+                alert("Выберите категорию билета!");
+                btn.classList.remove('loading');
+                return;
+            }
+
             try {
-                tg.sendData(JSON.stringify({ action: 'buy_hooligan' }));
+                tg.sendData(JSON.stringify({
+                    action: 'buy_hooligan',
+                    category: selectedTier.value
+                }));
             } catch (e) {
                 alert("Ошибка.");
             } finally {
                 setTimeout(() => btn.classList.remove('loading'), 1000);
             }
+        }
+
+        async function openMyTickets() {
+            openModal('mytickets');
+            const list = document.getElementById('tickets-list');
+            list.innerHTML = '<div class="loader" style="display:block; margin: 30px auto;"></div>';
+
+            const uid = tg.initDataUnsafe?.user?.id || userId;
+
+            try {
+                // Use relative path assuming served from same origin
+                const baseUrl = window.location.origin.includes('localhost') || window.location.protocol === 'file:'
+                    ? 'http://localhost:3000'
+                    : '';
+
+                const res = await fetch(`${baseUrl}/api/user-tickets?uid=${uid}`);
+                const tickets = await res.json();
+
+                if (!tickets || tickets.length === 0) {
+                    list.innerHTML = '<p style="text-align: center; color: #888; margin: 30px 0;">У вас пока нет активных билетов на шоу «Хулиган».</p>';
+                    return;
+                }
+
+                let html = '';
+                tickets.forEach(t => {
+                    const date = new Date(t.date).toLocaleDateString();
+                    const labels = { 'eco': 'Эконом', 'std': 'Стандарт', 'vip': 'VIP' };
+                    const tier = labels[t.category] || t.category;
+
+                    html += `
+                        <div class="card" style="margin-bottom: 15px; animation: none; opacity: 1; transform: none; background: rgba(255,255,255,0.08);">
+                            <div class="card-content" style="padding: 15px;">
+                                <h3 style="font-size: 1.1rem; margin-bottom: 5px;">Магический стендап «Хулиган»</h3>
+                                <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Категория:</span>
+                                    <span style="color: var(--gold-color); font-weight: 600;">${tier}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Дата покупки:</span>
+                                    <span style="color: white; font-size: 0.9rem;">${date}</span>
+                                </div>
+                                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; color: #4cd137;">
+                                    ✅ Оплачено
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+
+            } catch (e) {
+                console.error(e);
+                list.innerHTML = '<p style="text-align: center; color: #ff6b6b; margin: 30px 0;">Ошибка загрузки билетов.</p>';
+            }
+        }
+
+        // --- SCANNER LOGIC ---
+        let html5QrcodeScannerVar;
+
+        function openScanner() {
+            document.getElementById('modal-scanner').classList.add('active');
+            html5QrcodeScannerVar = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+            html5QrcodeScannerVar.start({ facingMode: "environment" }, config, onScanSuccess)
+                .catch(err => {
+                    document.getElementById('scan-result').innerText = "Ошибка камеры: " + err;
+                });
+        }
+
+        function closeScanner() {
+            const modal = document.getElementById('modal-scanner');
+            modal.classList.remove('active');
+
+            if (html5QrcodeScannerVar) {
+                html5QrcodeScannerVar.stop().then(() => {
+                    html5QrcodeScannerVar.clear();
+                }).catch(err => {
+                    console.error("Failed to stop scanner", err);
+                });
+            }
+            document.getElementById('scan-result').innerText = "Наведите камеру на QR-код";
+            document.getElementById('scan-result').style.color = "white";
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (html5QrcodeScannerVar) {
+                html5QrcodeScannerVar.pause();
+            }
+
+            const resDiv = document.getElementById('scan-result');
+            resDiv.innerText = "Проверка... ⏳";
+
+            fetch('/api/verify-ticket', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticketId: decodedText })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    resDiv.innerText = data.message;
+                    if (data.success) {
+                        resDiv.style.color = "#2ecc71";
+                        if (window.navigator.vibrate) window.navigator.vibrate(200);
+                    } else {
+                        resDiv.style.color = "#e74c3c";
+                        if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
+                    }
+
+                    setTimeout(() => {
+                        if (html5QrcodeScannerVar) html5QrcodeScannerVar.resume();
+                        resDiv.style.color = "white";
+                        if (data.success) resDiv.innerText = "Наведите камеру на QR-код";
+                    }, 3000);
+                })
+                .catch(err => {
+                    resDiv.innerText = "Ошибка сети";
+                    if (html5QrcodeScannerVar) html5QrcodeScannerVar.resume();
+                });
         }
     </script>
 </body>

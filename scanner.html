@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scanner Pro</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2ed573;
+            --danger: #ff4757;
+            --dark: #1e272e;
+            --card: #2f3542;
+            --text: #f1f2f6;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            padding-top: 60px;
+            /* Header space */
+        }
+
+        /* Sticky Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 100;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .stats {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Controls */
+        .controls {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .btn-sync {
+            background: #3742fa;
+            color: white;
+        }
+
+        .btn-scan {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Search */
+        .search-box {
+            padding: 0 15px 15px 15px;
+        }
+
+        input.search {
+            width: 90%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #57606f;
+            background: var(--card);
+            color: white;
+            font-size: 16px;
+            margin: auto;
+            display: block;
+        }
+
+        /* List */
+        .list {
+            padding: 0 15px 100px 15px;
+        }
+
+        .guest-card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #bdc3c7;
+        }
+
+        .guest-card.checked {
+            border-left-color: var(--primary);
+            opacity: 0.6;
+            order: 1;
+            /* Move checked to bottom maybe? Not with JS sorting */
+        }
+
+        .info h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .info p {
+            margin: 0;
+            font-size: 13px;
+            color: #a4b0be;
+        }
+
+        .status-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #57606f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .guest-card.checked .status-toggle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Scanner Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            z-index: 200;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        #reader {
+            width: 100%;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 201;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="stats" id="stats">Вход: 0 / 0</div>
+        <div class="header-title">ПРОХОДКА</div>
+        <div style="width: 70px; text-align: right; font-size: 12px; color: #ccc;" id="sync-status">Оффлайн</div>
+    </header>
+
+    <div class="controls">
+        <button class="btn btn-sync" onclick="syncData()">🔄 Обновить</button>
+        <button class="btn btn-scan" onclick="startScan()">📷 Скан</button>
+    </div>
+
+    <div class="search-box">
+        <input type="text" class="search" placeholder="Поиск (Имя или ID)..." oninput="filterList()" id="searchInput">
+    </div>
+
+    <div class="list" id="guest-list">
+        <!-- Cards go here -->
+    </div>
+
+    <div class="modal" id="scanner-modal">
+        <button class="close-btn" onclick="stopScan()">✕</button>
+        <div id="reader"></div>
+        <div style="color: white; text-align: center; padding: 20px;">Наведите на QR</div>
+    </div>
+
+    <script>
+        let guests = [];
+        let html5QrCode;
+
+        // Load data on start
+        window.onload = () => {
+            const saved = localStorage.getItem('guest_db');
+            if (saved) {
+                guests = JSON.parse(saved);
+                renderList();
+            } else {
+                syncData();
+            }
+        };
+
+        async function syncData() {
+            const btn = document.querySelector('.btn-sync');
+            btn.innerText = "⏳ Загрузка...";
+
+            // Base URL Logic (Same as index.html)
+            const baseUrl = window.location.origin.includes('localhost') || window.location.protocol === 'file:'
+                ? 'http://localhost:3000'
+                : '';
+
+            try {
+                const res = await fetch(`${baseUrl}/api/sync-tickets`);
+                const data = await res.json();
+                if (data.success) {
+                    // Update local data intelligently (don't overwrite manual check-ins if server is older?)
+                    // For simplicity: We trust server fresh sync, BUT if we made changes locally offline, we might lose them?
+                    // Better approach for Simple PWA: Server is master for LIST. Local is master for STATUS only if we want offline mode.
+                    // But here, we just overwrite for now as "Fresh Load".
+
+                    // Ideally: Merge status.
+                    // 1. Map current local checked status
+                    const localStatus = {};
+                    guests.forEach(g => { if (g.scanned) localStatus[g.ticketId] = true; });
+
+                    guests = data.tickets; // New fresh list
+
+                    // Restore local check-ins if they are not checked on server yet (Optional advanced logic)
+                    // For now, let's just use the server data effectively.
+                    // Actually, we are Offline App, we want to download ONCE, then work offline.
+
+                    localStorage.setItem('guest_db', JSON.stringify(guests));
+                    document.getElementById('sync-status').innerText = "Обновлено";
+                    renderList();
+                    btn.innerText = "✅ Готово";
+                    setTimeout(() => btn.innerText = "🔄 Обновить", 2000);
+                }
+            } catch (e) {
+                console.error(e);
+                btn.innerText = "❌ Ошибка";
+                alert('Не удалось обновить. Проверьте интернет и адрес сервера.');
+                setTimeout(() => btn.innerText = "🔄 Обновить", 2000);
+            }
+        }
+
+        function renderList() {
+            const filter = document.getElementById('searchInput').value.toLowerCase();
+            const list = document.getElementById('guest-list');
+
+            // Calc stats
+            const total = guests.length;
+            const checked = guests.filter(g => g.scanned).length;
+            document.getElementById('stats').innerText = `Вход: ${checked} / ${total}`;
+
+            // Filter
+            const filtered = guests.filter(g =>
+                g.userName.toLowerCase().includes(filter) ||
+                g.ticketId.includes(filter)
+            );
+
+            // Sort: Unchecked first
+            filtered.sort((a, b) => (a.scanned === b.scanned) ? 0 : a.scanned ? 1 : -1);
+
+            list.innerHTML = filtered.map(g => `
+                <div class="guest-card ${g.scanned ? 'checked' : ''}" onclick="toggleCheck('${g.ticketId}')">
+                    <div class="info">
+                        <h3>${g.userName}</h3>
+                        <p>${g.type.toUpperCase()} | ${g.category.toUpperCase()}</p>
+                        <p style="font-family: monospace; opacity: 0.5;">${g.ticketId.split('-')[0]}...</p>
+                    </div>
+                    <div class="status-toggle">
+                        ${g.scanned ? '✔' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterList() {
+            renderList();
+        }
+
+        function toggleCheck(id) {
+            const guest = guests.find(g => g.ticketId === id);
+            if (guest) {
+                // If checking IN
+                if (!guest.scanned) {
+                    if (confirm(`Пустить гостя: ${guest.userName}?`)) {
+                        guest.scanned = true;
+                        guest.scannedAt = new Date().toISOString();
+                        saveLocal();
+                        renderList();
+
+                        // Try to sync to server background (Fire and forget)
+                        const baseUrl = window.location.origin.includes('localhost') || window.location.protocol === 'file:'
+                            ? 'http://localhost:3000'
+                            : '';
+
+                        fetch(`${baseUrl}/api/verify-ticket`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ticketId: id })
+                        }).catch(() => { });
+                    }
+                } else {
+                    // Uncheck? (Maybe accidental tap)
+                    if (confirm(`Отменить вход для ${guest.userName}?`)) {
+                        guest.scanned = false;
+                        saveLocal();
+                        renderList();
+                    }
+                }
+            }
+        }
+
+        function saveLocal() {
+            localStorage.setItem('guest_db', JSON.stringify(guests));
+        }
+
+        // SCANNER
+        function startScan() {
+            document.getElementById('scanner-modal').classList.add('active');
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+                // Ticket Found
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanner-modal').classList.remove('active');
+                    const guest = guests.find(g => g.ticketId === text);
+                    if (guest) {
+                        if (guest.scanned) {
+                            alert(`⚠️ ВНИМАНИЕ!\nБилет уже использован!\n${guest.userName}`);
+                        } else {
+                            toggleCheck(text); // Will prompt confirmation
+                        }
+                        // Clear search to show this user
+                        document.getElementById('searchInput').value = guest.ticketId;
+                        renderList();
+                    } else {
+                        alert("❌ Билет НЕ НАЙДЕН в базе!");
+                    }
+                    html5QrCode.clear();
+                });
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+
+        function stopScan() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    document.getElementById('scanner-modal').classList.remove('active');
+                }).catch(err => {
+                    document.getElementById('scanner-modal').classList.remove('active');
+                });
+            } else {
+                document.getElementById('scanner-modal').classList.remove('active');
+            }
+        }
+
+    </script>
+</body>
+
+</html>
