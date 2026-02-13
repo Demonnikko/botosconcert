@@ -11,16 +11,27 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
-            --bg-color: #0d0d12;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --bg-color: #000000;
+            --card-bg: #12131a;
             --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-            --accent-color: #eb4d4b;
-            --accent-hover: #ff7675;
-            --gold-color: #ffd700;
-            --card-radius: 20px;
+            --text-secondary: #9ea6b8;
+            --accent-color: #cba135;
+            /* Gold */
+            --accent-hover: #e7c776;
+            --gold-color: #cba135;
+            --card-radius: 14px;
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             --font-family: 'Inter', system-ui, sans-serif;
+            --glow: rgba(203, 161, 53, 0.15);
+        }
+
+        .icon-inline {
+            width: 18px;
+            height: 18px;
+            vertical-align: sub;
+            margin-right: 5px;
+            filter: invert(1);
+            /* Make white */
         }
 
         * {
@@ -36,10 +47,20 @@
             overflow-x: hidden;
             min-height: 100vh;
             padding: 20px;
-            padding-bottom: 40px;
-            background-image: radial-gradient(circle at 10% 20%, rgba(90, 30, 150, 0.2) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(200, 50, 50, 0.15) 0%, transparent 40%);
+            padding-bottom: 90px;
+            /* Space for TabBar */
             position: relative;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 9997;
+            pointer-events: none;
+            opacity: .05;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
         }
 
         /* Magic Particles */
@@ -58,10 +79,11 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: radial-gradient(circle, var(--gold-color) 0%, transparent 70%);
+            background: radial-gradient(circle, #fff 0%, transparent 70%);
             border-radius: 50%;
-            animation: float 15s infinite ease-in-out;
+            animation: float 20s infinite linear;
             opacity: 0;
+            box-shadow: 0 0 10px var(--gold-color);
         }
 
         @keyframes float {
@@ -104,22 +126,11 @@
             font-weight: 800;
             letter-spacing: -1px;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #fff 0%, var(--gold-color) 50%, #fff 100%);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shimmer 3s linear infinite;
-        }
-
-        @keyframes shimmer {
-            0% {
-                background-position: 0% center;
-            }
-
-            100% {
-                background-position: 200% center;
-            }
+            color: var(--gold-color);
+            text-shadow: 0 2px 30px rgba(203, 161, 53, 0.3);
+            background: none;
+            -webkit-text-fill-color: initial;
+            animation: none;
         }
 
         .subtitle {
@@ -205,9 +216,23 @@
         }
 
         .card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            background: #ffffff;
+            border-color: #ffffff;
+            box-shadow: 0 10px 40px -10px rgba(255, 255, 255, 0.3);
+        }
+
+        .card:hover .card-title,
+        .card:hover .card-desc,
+        .card:hover .countdown-label,
+        .card:hover .countdown-value {
+            color: #000000 !important;
+            text-shadow: none;
+        }
+
+        .card:hover .tickets-badge {
+            background: #000;
+            color: #fff;
         }
 
         .card-image-container {
@@ -374,8 +399,10 @@
         }
 
         .btn:hover {
-            background: linear-gradient(135deg, var(--accent-hover) 0%, #ff8787 100%);
-            box-shadow: 0 0 30px rgba(235, 77, 75, 0.6);
+            background: #ffffff !important;
+            color: #000000 !important;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
         }
 
         @keyframes fadeInDown {
@@ -772,18 +799,34 @@
     <!-- Tab Bar Navigation -->
     <nav class="tab-bar">
         <div class="tab-item active">
-            <span>🎟</span>
+            <span><img src="icons/ticket.png" class="icon-nav" alt="Афиша"></span>
             Афиша
         </div>
         <a href="/private" class="tab-item">
-            <span>🎩</span>
+            <span><img src="icons/magician.png" class="icon-nav" alt="Частные"></span>
             Частные
         </a>
         <a href="/school" class="tab-item">
-            <span>✨</span>
+            <span><img src="icons/book.png" class="icon-nav" alt="Школа"></span>
             Школа
         </a>
     </nav>
+
+    <style>
+        .icon-nav {
+            width: 24px;
+            height: 24px;
+            filter: invert(0.5) grayscale(1);
+            opacity: 0.6;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .tab-item.active .icon-nav {
+            filter: invert(1) grayscale(1) brightness(2) contrast(1.2);
+            opacity: 1;
+        }
+    </style>
 
 
     <!-- Modals -->
@@ -847,7 +890,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="buyHooligan(); closeModal('hooligan')">
-                    <span class="text">🎟 Купить билет</span>
+                    <span class="text"><img src="icons/ticket.png" class="icon-inline">Купить билет</span>
                 </button>
             </div>
         </div>
@@ -888,7 +931,8 @@
                 <div style="height: 100px;"></div>
             </div>
             <div class="modal-footer">
-                <a href="#" id="modal-link-secret" target="_blank" class="btn">🎟 Купить билет</a>
+                <a href="#" id="modal-link-secret" target="_blank" class="btn"><img src="icons/ticket.png"
+                        class="icon-inline">Купить билет</a>
             </div>
         </div>
     </div>
@@ -920,12 +964,14 @@
                     и взрослых настоящим волшебством.
                 </div>
                 <div class="price-info" style="margin-top: 15px; font-weight: 600; color: var(--gold-color);">
-                    💰 Стоимость билетов: 500 - 900 ₽
+                    <img src="icons/crystals.png" class="icon-inline" style="filter:none;"> Стоимость билетов: 500 - 900
+                    ₽
                 </div>
                 <div style="height: 100px;"></div>
             </div>
             <div class="modal-footer">
-                <a href="#" id="modal-link-matvey" target="_blank" class="btn">🎟 Купить билет</a>
+                <a href="#" id="modal-link-matvey" target="_blank" class="btn"><img src="icons/ticket.png"
+                        class="icon-inline">Купить билет</a>
             </div>
         </div>
     </div>
@@ -943,7 +989,7 @@
                 <div
                     style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px; margin-top: 20px; border: 1px dashed var(--text-secondary);">
                     <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
-                        ℹ️ <b>Билеты на другие шоу</b><br>
+                        <img src="icons/magic.png" class="icon-inline"> <b>Билеты на другие шоу</b><br>
                         Если вы приобрели билеты на «Секрет» или «Спасти Матвея», они были отправлены на вашу
                         электронную почту билетным сервисом <b>QuickTickets</b>. Проверьте папку "Входящие" или "Спам".
                     </p>
@@ -1002,7 +1048,8 @@
             </p>
         </div>
 
-        <button class="btn" onclick="openModal('private-calc')">📅 Рассчитать стоимость</button>
+        <button class="btn" onclick="openModal('private-calc')"><img src="icons/sand-clock.png" class="icon-inline">
+            Рассчитать стоимость</button>
     </section>
 
     <!-- SCHOOL SECTION -->
@@ -1013,7 +1060,8 @@
         </div>
 
         <div class="school-feature">
-            <div class="school-icon">🧠</div>
+            <div class="school-icon"><img src="icons/book.png" class="icon-nav" style="opacity:1; filter: invert(1);">
+            </div>
             <div>
                 <strong>Прокачиваем харизму</strong>
                 <p style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">Уверенность в себе важнее, чем просто
@@ -1022,7 +1070,8 @@
         </div>
 
         <div class="school-feature">
-            <div class="school-icon">🎤</div>
+            <div class="school-icon"><img src="icons/magician.png" class="icon-nav"
+                    style="opacity:1; filter: invert(1);"></div>
             <div>
                 <strong>Навык выступлений</strong>
                 <p style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">Каждый урок — это мини-шоу. Ребенок учится
@@ -1045,7 +1094,8 @@
         </div>
 
         <div class="tariff-card" style="border-color: var(--gold-color);">
-            <div style="color: var(--gold-color); font-size: 0.8rem; margin-bottom: 5px;">🔥 ВЫГОДНО</div>
+            <div style="color: var(--gold-color); font-size: 0.8rem; margin-bottom: 5px;"><img src="icons/magic.png"
+                    style="width:14px; vertical-align:middle; filter: invert(1);"> ВЫГОДНО</div>
             <h4>Полгода</h4>
             <div class="tariff-price">22 000 ₽</div>
             <div class="tariff-old">27 000 ₽</div>
@@ -1098,7 +1148,8 @@
                 <div style="height: 50px;"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn" onclick="sendBookingPrivate()">📩 Отправить заявку</button>
+                <button class="btn" onclick="sendBookingPrivate()"><img src="icons/telegram.png" class="icon-inline">
+                    Отправить заявку</button>
             </div>
         </div>
     </div>
@@ -1106,16 +1157,20 @@
     <!-- Admin Panel (Hidden by default) -->
     <div id="admin-panel">
         <h2>⚙️ Панель управления</h2>
-        <button class="btn" style="background: #2ed573; margin-bottom: 20px;" onclick="openScanner()">📷 Сканер
+        <button class="btn" style="background: #2ed573; margin-bottom: 20px;" onclick="openScanner()"><img
+                src="icons/magic-ball.png" class="icon-inline"> Сканер
             QR-кодов</button>
         <a href="/api/export-guests" target="_blank" class="btn"
-            style="background: #3498db; margin-bottom: 20px; text-decoration: none; display: block; text-align: center;">📥
+            style="background: #3498db; margin-bottom: 20px; text-decoration: none; display: block; text-align: center;"><img
+                src="icons/scroll.png" class="icon-inline">
             Скачать список (CSV)</a>
         <a href="scanner.html" target="_blank" class="btn"
-            style="background: #9b59b6; margin-bottom: 20px; text-decoration: none; display: block; text-align: center;">📱
+            style="background: #9b59b6; margin-bottom: 20px; text-decoration: none; display: block; text-align: center;"><img
+                src="icons/phone.png" class="icon-inline">
             Открыть SMART-СКАНЕР</a>
 
-        <h3>💰 Цены и ссылки</h3>
+        <h3><img src="icons/crystals.png" class="icon-inline" style="filter:none; width:20px; height:20px;"> Цены и
+            ссылки</h3>
         <div class="form-group">
             <label class="form-label">Цена Хулиган Эконом (коп):</label>
             <input type="number" id="admin-hooligan-price-eco" class="form-input">
@@ -1137,7 +1192,8 @@
             <input type="text" id="admin-matvey-link" class="form-input">
         </div>
 
-        <h3>📅 Даты шоу (для таймера)</h3>
+        <h3><img src="icons/sand-clock.png" class="icon-inline" style="filter:none; width:20px; height:20px;"> Даты шоу
+            (для таймера)</h3>
         <div class="form-group">
             <label class="form-label">Дата Хулиган:</label>
             <input type="datetime-local" id="admin-hooligan-date" class="form-input">
@@ -1162,7 +1218,8 @@
                 placeholder="ул. Большая Октябрьская, д. 45">
         </div>
 
-        <h3>🎟 Осталось билетов</h3>
+        <h3><img src="icons/ticket.png" class="icon-inline" style="filter:none; width:20px; height:20px;"> Осталось
+            билетов</h3>
         <div class="form-group">
             <label class="form-label">Билетов Хулиган:</label>
             <input type="number" id="admin-hooligan-tickets" class="form-input" min="0">
@@ -1176,7 +1233,8 @@
             <input type="number" id="admin-matvey-tickets" class="form-input" min="0">
         </div>
 
-        <button class="btn" onclick="saveConfig()">💾 Сохранить настройки</button>
+        <button class="btn" onclick="saveConfig()"><img src="icons/magic.png" class="icon-inline"> Сохранить
+            настройки</button>
     </div>
 
     <!-- Header -->
@@ -1186,7 +1244,7 @@
         <button class="btn"
             style="background: rgba(255, 255, 255, 0.1); margin-top: 15px; font-size: 0.9rem; padding: 10px;"
             onclick="openMyTickets()">
-            🎟 Мои билеты
+            <img src="icons/ticket.png" class="icon-inline"> Мои билеты
         </button>
         <div class="subtitle">Магия, которая меняет реальность</div>
     </header>
@@ -1213,7 +1271,7 @@
             </div>
         </div>
         <button class="btn" id="btn-hooligan" onclick="event.stopPropagation(); buyHooligan()">
-            <span class="text">🎟 Купить билет</span>
+            <span class="text"><img src="icons/ticket.png" class="icon-inline">Купить билет</span>
             <div class="loader"></div>
         </button>
     </div>
@@ -1244,7 +1302,7 @@
                 </div>
             </div>
             <a href="#" id="link-secret" target="_blank" class="btn" onclick="event.stopPropagation()">
-                <span class="text">🎟 Купить билет</span>
+                <span class="text"><img src="icons/ticket.png" class="icon-inline">Купить билет</span>
             </a>
         </div>
     </div>
@@ -1274,7 +1332,7 @@
                 </div>
             </div>
             <a href="#" id="link-matvey" target="_blank" class="btn" onclick="event.stopPropagation()">
-                <span class="text">🎟 Купить билет</span>
+                <span class="text"><img src="icons/ticket.png" class="icon-inline">Купить билет</span>
             </a>
         </div>
     </div>
@@ -1327,8 +1385,8 @@
                 particle.style.width = size + 'px';
                 particle.style.height = size + 'px';
 
-                // Random colors (gold, white, light purple)
-                const colors = ['#ffd700', '#ffffff', '#c9a0ff', '#ffb347'];
+                // Random colors (gold, white, light gold)
+                const colors = ['#ffd700', '#ffffff', '#e7c776', '#ffb347'];
                 particle.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]} 0%, transparent 70%)`;
 
                 container.appendChild(particle);
@@ -1372,6 +1430,7 @@
 
         // Apply config
         applyConfig(DEFAULT_CONFIG);
+
 
         function applyConfig(cfg) {
             // Links
